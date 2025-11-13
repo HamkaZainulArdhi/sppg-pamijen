@@ -7,6 +7,12 @@ if (!googleApiKey) {
   throw new Error('Google API key is not defined in environment variables');
 }
 const genAI = new GoogleGenerativeAI(googleApiKey);
+const GEMINI_MODEL = 'gemini-2.5-flash-lite';
+// list model yg work
+// 1. gemini-2.5-flash-preview-05-20 // ini kadang ra bisa
+// 2. gemini-2.0-flash-001
+// 3. gemini-2.5-flash-preview-09-2025
+//4. gemini-2.5-flash-lite // sering halu
 const texterror =
   'Analisis nutrisi gagal dilakukan. unggah foto lain dan pastikan semua makanan dengan terlihat jelas dan batasan deteksi 50X request perhari.';
 
@@ -63,7 +69,7 @@ export async function POST(request: NextRequest) {
       message = error.message;
 
       // Tangkap error Gemini overload (503)
-      if (message.includes('503')) {
+      if (message.includes('429')) {
         message =
           'Layanan sedang sibuk karena terlalu banyak request. Mohon tunggu beberapa saat dan pastikan yang diupload adalah foto menu makanan.';
       }
@@ -74,7 +80,9 @@ export async function POST(request: NextRequest) {
 }
 
 async function detectFoodItems(imageUrl: string): Promise<MenuItemDetection[]> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+  const model = genAI.getGenerativeModel({
+    model: GEMINI_MODEL, // model: gemini-2.5-flash-preview-05-20,
+  });
 
   const prompt = `You are a food detection expert. Analyze this meal photo and identify visible food items with estimated portion sizes.
 
@@ -131,7 +139,9 @@ Important:
 async function analyzeNutrition(
   menuItems: MenuItemDetection[],
 ): Promise<NutritionAnalysis> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+  const model = genAI.getGenerativeModel({
+    model: GEMINI_MODEL, // model: gemini-2.5-flash-preview-05-20,
+  });
 
   const prompt = `You are a nutrition analysis assistant. Calculate detailed nutritional information for the following food items.
 
@@ -168,8 +178,9 @@ Important:
 - Convert Indonesian food names to English for the items array
 - Ensure all numbers are realistic and properly calculated
 - The summary should be the sum of all individual items
-- Return only the JSON object, no other text
-- all of output content must be in bahasa Indonesia dont use english`;
+- Return only the JSON object like this, no other text
+- All output must be a JSON object where all keys are strictly in English like my JSON above  (no Bahasa Indonesia allowed in keys), 
+and all values must be written only in Bahasa Indonesia (no English allowed in values)`;
 
   try {
     const result = await model.generateContent(prompt);

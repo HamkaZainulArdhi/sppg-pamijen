@@ -84,32 +84,32 @@ export async function generateShareCard(scan: NutritionScan): Promise<string> {
 }
 
 // Share via Web Share API or fallback
-export async function shareNutritionScan(scan: NutritionScan) {
-  const shareData = {
-    title: 'My Nutrition Analysis',
-    text: `I analyzed my meal and found ${scan.nutrition_facts.nutrition_summary.calories_kcal} calories! Check out the detailed breakdown.`,
-    url: window.location.href,
-  };
+// export async function shareNutritionScan(scan: NutritionScan) {
+//   const shareData = {
+//     title: 'My Nutrition Analysis',
+//     text: `I analyzed my meal and found ${scan.nutrition_facts.nutrition_summary.calories_kcal} calories! Check out the detailed breakdown.`,
+//     url: window.location.href,
+//   };
 
-  if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
-    try {
-      await navigator.share(shareData);
-      return true;
-    } catch (error) {
-      if ((error as Error).name !== 'AbortError') {
-        console.error('Share failed:', error);
-      }
-      return false;
-    }
-  } else {
-    // Fallback: copy to clipboard
-    try {
-      const shareText = `${shareData.title}\n\n${shareData.text}\n\n${shareData.url}`;
-      await navigator.clipboard.writeText(shareText);
-      return 'clipboard';
-    } catch (error) {
-      console.error('Clipboard copy failed:', error);
-      return false;
-    }
-  }
-}
+//   if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+//     try {
+//       await navigator.share(shareData);
+//       return true;
+//     } catch (error) {
+//       if ((error as Error).name !== 'AbortError') {
+//         console.error('Share failed:', error);
+//       }
+//       return false;
+//     }
+//   } else {
+//     // Fallback: copy to clipboard
+//     try {
+//       const shareText = `${shareData.title}\n\n${shareData.text}\n\n${shareData.url}`;
+//       await navigator.clipboard.writeText(shareText);
+//       return 'clipboard';
+//     } catch (error) {
+//       console.error('Clipboard copy failed:', error);
+//       return false;
+//     }
+//   }
+// }

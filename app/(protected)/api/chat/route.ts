@@ -43,7 +43,9 @@ export async function POST(request: NextRequest) {
     // }
 
     // Jika masih dalam konteks → generate jawaban dari model Gemini
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-2.5-flash-preview-05-20', //gemini-2.0-flash-lite-001
+    });
 
     const prompt = `
 

@@ -51,7 +51,7 @@ const HowItWorks = () => {
     },
   ];
 
-  const stepDuration = 5000; // 8 secon
+  const stepDuration = 6500; // 8 secon
 
   // Auto-advance steps with progress animation
   useEffect(() => {

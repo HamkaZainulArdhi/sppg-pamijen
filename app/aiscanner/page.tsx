@@ -66,11 +66,11 @@ export default function AIscanner() {
   };
 
   return (
-    <div className="bg-background h-full p-7 mt-24 w-full ">
+    <div className="bg-background h-full mt-24 w-full ">
       <Header />
-      <main className="container mx-auto px-4 h-full">
+      <main className="container mx-auto h-full">
         {viewState === 'upload' && (
-          <div className="max-w-4xl mx-auto  min-h-full">
+          <div className="max-w-4xl mx-auto px-4  min-h-full">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-foreground mb-4">
                 Analisis Gizi Menu MBG
@@ -140,7 +140,7 @@ export default function AIscanner() {
               </motion.svg>
             </motion.div>
 
-            <AlertDialogHeader className="text-center items-center justify-center">
+            <AlertDialogHeader className="text-center items-center  justify-center">
               <AlertDialogTitle>Analisis Selesai</AlertDialogTitle>
               <AlertDialogDescription className="text-center">
                 Analisis gambar selesai dan hasil gizi siap ditinjau. Apakah
@@ -163,8 +163,8 @@ export default function AIscanner() {
         </AlertDialog>
 
         {viewState === 'results' && currentScan && (
-          <div className="space-y-6">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-6 px-10">
+            <div className="flex flex-col gap-4  sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-col text-center sm:text-left">
                 <h2 className="text-2xl font-bold text-foreground">
                   Hasil Analisis
