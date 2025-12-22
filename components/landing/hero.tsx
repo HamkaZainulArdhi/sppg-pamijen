@@ -122,11 +122,13 @@ export default function Hero() {
           className="text-balance text-4xl font-extrabold leading-tight tracking-tight md:text-6xl"
         >
           <span className="block">
-            Ketahui <span className="text-primary">Gizi Menu </span>
+            Transparansi <span className="text-primary">Gizi Menu </span>
           </span>
           <span className="block">
-            <span className="text-primary">MBG </span>Hari Ini <br />
-            Dalam <span className="text-primary">Sekejap</span>
+            <span className="text-primary">MBG </span>Hari Ini Di <br />
+            <span className="text-primary">
+              SPPG Pamijen, Sokaraja, Banyumas
+            </span>
           </span>
         </motion.h1>
 
@@ -143,12 +145,6 @@ export default function Hero() {
           variants={item}
           className="mt-6 flex items-center justify-center gap-4"
         >
-          <a
-            href="https://www.youtube.com/watch?v=3nFVbNPF-HQ"
-            className="rounded-full border-primary border px-5 py-3 text-sm font-semibold transition-colors"
-          >
-            Video Demo
-          </a>
           <a
             href="/aiscanner"
             className="rounded-full  bg-primary text-white px-5 py-3 text-sm font-semibold transition-colors"

@@ -65,6 +65,7 @@ export type Database = {
           nutrition_facts: unknown;
           created_at: string | null;
           user_id: string | null;
+          school_category: string;
         };
         Insert: {
           id?: string;
@@ -74,6 +75,7 @@ export type Database = {
           nutrition_facts: unknown;
           created_at?: string | null;
           user_id?: string | null;
+          school_category: string;
         };
         Update: {
           id?: string;
@@ -83,6 +85,7 @@ export type Database = {
           nutrition_facts?: unknown;
           created_at?: string | null;
           user_id?: string | null;
+          school_category?: string;
         };
       };
     };

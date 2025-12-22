@@ -18,7 +18,14 @@ export async function POST(request: NextRequest) {
 
     const scanData: NutritionScan & { user_id: string } = await request.json();
 
-    // Insert the scan data into the database
+    // Validasi school_category harus ada
+    if (!scanData.school_category) {
+      return NextResponse.json(
+        { error: 'School category is required' },
+        { status: 400 },
+      );
+    }
+
     const { data, error } = await supabase
       .from('nutrition_scans')
       .insert({
@@ -27,6 +34,7 @@ export async function POST(request: NextRequest) {
         menu_items: scanData.menu_items,
         nutrition_facts: scanData.nutrition_facts,
         scan_date: scanData.scan_date,
+        school_category: scanData.school_category,
       })
       .select()
       .single();

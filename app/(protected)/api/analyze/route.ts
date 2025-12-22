@@ -7,7 +7,7 @@ if (!googleApiKey) {
   throw new Error('Google API key is not defined in environment variables');
 }
 const genAI = new GoogleGenerativeAI(googleApiKey);
-const GEMINI_MODEL = 'gemini-2.5-flash-lite';
+const GEMINI_MODEL = 'gemini-2.5-flash-preview-09-2025';
 // list model yg work
 // 1. gemini-2.5-flash-preview-05-20 // ini kadang ra bisa
 // 2. gemini-2.0-flash-001
@@ -143,11 +143,16 @@ async function analyzeNutrition(
     model: GEMINI_MODEL, // model: gemini-2.5-flash-preview-05-20,
   });
 
-  const prompt = `You are a nutrition analysis assistant. Calculate detailed nutritional information for the following food items.
+  const prompt = `You are a professional nutritionist assistant. Analyze the nutritional content of food items and evaluate meal balance.
 
 Input: ${JSON.stringify(menuItems)}
 
-Task: Calculate calories, protein, fat, carbs, sodium, and fiber for each item and provide a total summary.
+Task:
+1. Calculate detailed nutritional information for each food item.
+2. Provide a nutrition summary including: Calories, Protein, Fat, Carbs, Sodium, and Fiber.
+3. Evaluate whether the meal is "Layak" (nutritionally balanced) or "Tidak Layak" (unbalanced, excessive, or deficient).
+4. Provide a short explanation (max 50 words in Bahasa Indonesia) for the evaluation.
+5. If "Tidak Layak", provide practical recommendations (max 50 words in Bahasa Indonesia) to improve the meal.
 
 Output format: Return ONLY a valid JSON object with this exact structure:
 {
@@ -170,17 +175,25 @@ Output format: Return ONLY a valid JSON object with this exact structure:
       "sodium_mg": number,
       "fiber_g": number
     }
-  ]
+  ],
+  "summary_evaluation": {
+    "status": "Layak" or "Tidak Layak",
+    "reason": "Short explanation in Bahasa Indonesia (max 50 words)",
+    "recommendation": "Practical solution in Bahasa Indonesia (max 50 words)"
+  }
 }
 
+Evaluation Criteria for Layak/Tidak Layak:
+- Layak: Balanced protein (15-20% of calories), healthy fat ratio, adequate fiber, sodium < 2300mg, calories within reasonable range.
+- Tidak Layak: Excessive calories, high sodium, low protein, imbalanced macros, or insufficient fiber.
+
 Important:
-- Use accurate nutritional data based on standard food databases
-- Convert Indonesian food names to English for the items array
-- Ensure all numbers are realistic and properly calculated
-- The summary should be the sum of all individual items
-- Return only the JSON object like this, no other text
-- All output must be a JSON object where all keys are strictly in English like my JSON above  (no Bahasa Indonesia allowed in keys), 
-and all values must be written only in Bahasa Indonesia (no English allowed in values)`;
+- Use accurate nutritional data based on standard food databases.
+- Ensure all numbers are realistic and properly calculated.
+- The summary should be the sum of all individual items.
+- Return ONLY the JSON object, no other text.
+- All keys must be strictly in English.
+- All text values (reason, recommendation) must be ONLY in Bahasa Indonesia.`;
 
   try {
     const result = await model.generateContent(prompt);

@@ -66,8 +66,31 @@ export function HistoryTable({ user }: HistoryTableProps) {
 
   const [selectedScan] = useState<NutritionScan | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [categoryFilter, setCategoryFilter] = useState<string>('');
+  const [monthFilter, setMonthFilter] = useState<string>('');
   const router = useRouter();
   const { profile } = useProfile();
+
+  // Apply additional filters
+  const additionalFiltered = filteredScans.filter((scan) => {
+    // Status filter
+    if (statusFilter) {
+      const scanStatus = scan.nutrition_facts.summary_evaluation?.status || '';
+      if (scanStatus !== statusFilter) return false;
+    }
+
+    // Category filter
+    if (categoryFilter && scan.school_category !== categoryFilter) return false;
+
+    // Month filter
+    if (monthFilter) {
+      const scanMonth = new Date(scan.scan_date).toISOString().slice(0, 7);
+      if (scanMonth !== monthFilter) return false;
+    }
+
+    return true;
+  });
 
   // Utils
   const formatDate = (dateString: string) =>
@@ -79,9 +102,21 @@ export function HistoryTable({ user }: HistoryTableProps) {
       minute: '2-digit',
     });
 
+  const getCategoryLabel = (category: string) => {
+    const categoryMap: Record<string, string> = {
+      TK: 'TK/PAUD',
+      SD_1_3: 'SD Kelas 1–3',
+      SD_4_5: 'SD Kelas 4–5',
+      SMP: 'SMP/MTS',
+      SMA: 'SMA/SMK/MA',
+    };
+    return categoryMap[category] || category;
+  };
+
   const getScanSummary = (scan: NutritionScan) => ({
     itemCount: scan.menu_items.length,
-    calories: scan.nutrition_facts.nutrition_summary.calories_kcal,
+    evaluationStatus:
+      scan.nutrition_facts.summary_evaluation?.status || 'Unknown',
     allItems: scan.menu_items.map((i) => i.nama_menu).join(', '),
   });
 
@@ -167,28 +202,6 @@ export function HistoryTable({ user }: HistoryTableProps) {
       alt="Food scan"
       className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
     />
-  );
-
-  const ScanBadges = ({
-    calories,
-    protein,
-    itemCount,
-  }: {
-    calories: number;
-    protein: number;
-    itemCount: number;
-  }) => (
-    <div className="flex flex-wrap gap-2">
-      <Badge variant="success" appearance="outline" className="text-xs">
-        {Math.round(calories)} kcal
-      </Badge>
-      <Badge variant="outline" className="text-xs">
-        {Math.round(protein)}g protein
-      </Badge>
-      <Badge variant="outline" className="text-xs">
-        {itemCount} item
-      </Badge>
-    </div>
   );
 
   // Main render
@@ -283,15 +296,15 @@ export function HistoryTable({ user }: HistoryTableProps) {
                         <TableHead>Foto</TableHead>
                         <TableHead>Tanggal Scan</TableHead>
                         <TableHead>Menu</TableHead>
-                        <TableHead>Kalori</TableHead>
-                        <TableHead>Protein</TableHead>
+                        <TableHead>Status Nutrisi</TableHead>
+                        <TableHead>Kategori Sekolah</TableHead>
                         <TableHead>item Menu</TableHead>
                         <TableHead>Aksi</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {paginatedScans.map((scan) => {
-                        const { itemCount, calories, allItems } =
+                        const { itemCount, evaluationStatus, allItems } =
                           getScanSummary(scan);
                         return (
                           <TableRow key={scan.id}>
@@ -304,22 +317,36 @@ export function HistoryTable({ user }: HistoryTableProps) {
                                 {allItems}
                               </div>
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="text-center">
                               <Badge
-                                variant="success"
+                                variant={
+                                  evaluationStatus === 'Layak'
+                                    ? 'success'
+                                    : 'destructive'
+                                }
                                 appearance="outline"
                                 size="md"
+                                className="inline-flex items-center gap-1"
                               >
-                                {Math.round(calories)}
-                                {'\u202F'}kcal
+                                {evaluationStatus === 'Layak' ? (
+                                  <>
+                                    <span>✓</span>
+                                    <span>Layak</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <span>⚠</span>
+                                    <span>Tidak</span>
+                                    <span>Layak</span>
+                                  </>
+                                )}
                               </Badge>
                             </TableCell>
+
                             <TableCell>
-                              {Math.round(
-                                scan.nutrition_facts.nutrition_summary
-                                  .protein_g,
-                              )}
-                              g
+                              <Badge variant="outline" size="md">
+                                {getCategoryLabel(scan.school_category)}
+                              </Badge>
                             </TableCell>
                             <TableCell>
                               <Badge variant="outline">{itemCount}</Badge>
@@ -337,7 +364,7 @@ export function HistoryTable({ user }: HistoryTableProps) {
                 {/* Mobile Cards */}
                 <div className="lg:hidden space-y-4">
                   {paginatedScans.map((scan) => {
-                    const { itemCount, calories, allItems } =
+                    const { itemCount, evaluationStatus, allItems } =
                       getScanSummary(scan);
                     return (
                       <Card key={scan.id}>
@@ -354,14 +381,24 @@ export function HistoryTable({ user }: HistoryTableProps) {
                               <p className="font-medium text-sm mb-3 line-clamp-2">
                                 {allItems}
                               </p>
-                              <ScanBadges
-                                calories={calories}
-                                protein={
-                                  scan.nutrition_facts.nutrition_summary
-                                    .protein_g
-                                }
-                                itemCount={itemCount}
-                              />
+                              <div className="flex gap-2">
+                                <Badge
+                                  variant={
+                                    evaluationStatus === 'Layak'
+                                      ? 'success'
+                                      : 'destructive'
+                                  }
+                                  appearance="outline"
+                                  size="lg"
+                                >
+                                  {evaluationStatus === 'Layak'
+                                    ? '✓ Layak'
+                                    : '⚠ Tidak Layak'}
+                                </Badge>
+                                <Badge variant="outline" size="md">
+                                  {getCategoryLabel(scan.school_category)}
+                                </Badge>
+                              </div>
                             </div>
                           </div>
                         </CardContent>

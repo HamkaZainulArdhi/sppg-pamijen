@@ -208,7 +208,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
         </AlertDialog>
 
         {viewState === 'review' && currentScan && (
-          <div className="max-w-6xl mx-auto">
+          <div className="space-y-6">
             <NutritionReview
               scan={currentScan}
               onSave={handleSaveScan}

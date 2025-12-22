@@ -9,32 +9,40 @@ export async function exportHistoryToExcel(scans: NutritionScan[]) {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('Nutrition History');
 
-  worksheet.addRow([
-    'Date',
-    'Food Items',
-    'Calories',
-    'Protein',
-    'Fat',
-    'Carbs',
-    'Sodium',
-    'Fiber',
-  ]);
+  // Define columns explicitly
+  worksheet.columns = [
+    { header: 'Date', key: 'date', width: 18 },
+    { header: 'Food Items', key: 'foodItems', width: 25 },
+    { header: 'Calories', key: 'calories', width: 12 },
+    { header: 'Protein', key: 'protein', width: 12 },
+    { header: 'Fat', key: 'fat', width: 12 },
+    { header: 'Carbs', key: 'carbs', width: 12 },
+    { header: 'Sodium', key: 'sodium', width: 12 },
+    { header: 'Fiber', key: 'fiber', width: 12 },
+    { header: 'Kategori Sekolah', key: 'category', width: 18 },
+    { header: 'Status Nutrisi', key: 'notes', width: 30 },
+  ];
 
-  scans.forEach((scan) => {
-    worksheet.addRow([
-      new Date(scan.scan_date).toLocaleString(),
-      scan.menu_items.map((item) => item.nama_menu).join(', '),
-      scan.nutrition_facts.nutrition_summary.calories_kcal,
-      scan.nutrition_facts.nutrition_summary.protein_g,
-      scan.nutrition_facts.nutrition_summary.fat_g,
-      scan.nutrition_facts.nutrition_summary.carbs_g,
-      scan.nutrition_facts.nutrition_summary.sodium_mg,
-      scan.nutrition_facts.nutrition_summary.fiber_g,
-    ]);
-  });
-
+  // Style header
   worksheet.getRow(1).font = { bold: true };
-  worksheet.columns.forEach((column) => (column.width = 15));
+
+  // Add data rows
+  scans.forEach((scan) => {
+    worksheet.addRow({
+      date: new Date(scan.scan_date).toLocaleString(),
+      foodItems: scan.menu_items.map((item) => item.nama_menu).join(', '),
+      calories: scan.nutrition_facts.nutrition_summary.calories_kcal,
+      protein: scan.nutrition_facts.nutrition_summary.protein_g,
+      fat: scan.nutrition_facts.nutrition_summary.fat_g,
+      carbs: scan.nutrition_facts.nutrition_summary.carbs_g,
+      sodium: scan.nutrition_facts.nutrition_summary.sodium_mg,
+      fiber: scan.nutrition_facts.nutrition_summary.fiber_g,
+      category: scan.school_category,
+      notes: scan.nutrition_facts.summary_evaluation
+        ? `${scan.nutrition_facts.summary_evaluation.status} - ${scan.nutrition_facts.summary_evaluation.reason}`
+        : 'No evaluation found',
+    });
+  });
 
   const buffer = await workbook.xlsx.writeBuffer();
   const blob = new Blob([buffer], {
