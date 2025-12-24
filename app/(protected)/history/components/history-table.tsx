@@ -322,7 +322,7 @@ export function HistoryTable({ user }: HistoryTableProps) {
                                 variant={
                                   evaluationStatus === 'Layak'
                                     ? 'success'
-                                    : 'destructive'
+                                    : 'warning'
                                 }
                                 appearance="outline"
                                 size="md"
@@ -335,9 +335,8 @@ export function HistoryTable({ user }: HistoryTableProps) {
                                   </>
                                 ) : (
                                   <>
-                                    <span>⚠</span>
-                                    <span>Tidak</span>
-                                    <span>Layak</span>
+                                    <span>❖</span>
+                                    <span>Standar</span>
                                   </>
                                 )}
                               </Badge>
@@ -386,14 +385,14 @@ export function HistoryTable({ user }: HistoryTableProps) {
                                   variant={
                                     evaluationStatus === 'Layak'
                                       ? 'success'
-                                      : 'destructive'
+                                      : 'warning'
                                   }
                                   appearance="outline"
                                   size="lg"
                                 >
                                   {evaluationStatus === 'Layak'
                                     ? '✓ Layak'
-                                    : '⚠ Tidak Layak'}
+                                    : '❖ Standar'}
                                 </Badge>
                                 <Badge variant="outline" size="md">
                                   {getCategoryLabel(scan.school_category)}

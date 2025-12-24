@@ -5,8 +5,6 @@ import { createClient } from '@/lib/supabase/server';
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
-
-    // Get the authenticated user
     const {
       data: { user },
       error: authError,
@@ -18,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     const scanData: NutritionScan & { user_id: string } = await request.json();
 
-    // Validasi school_category harus ada
+    // Validasi school_category harus nya sih ada di client side juga
     if (!scanData.school_category) {
       return NextResponse.json(
         { error: 'School category is required' },

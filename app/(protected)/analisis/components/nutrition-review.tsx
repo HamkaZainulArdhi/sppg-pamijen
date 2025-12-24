@@ -357,7 +357,7 @@ export function NutritionReview({
               className={
                 nutrition_facts.summary_evaluation.status === 'Layak'
                   ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/20'
-                  : 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/20'
+                  : 'border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950/20'
               }
             >
               <CardHeader>
@@ -365,12 +365,12 @@ export function NutritionReview({
                   className={
                     nutrition_facts.summary_evaluation.status === 'Layak'
                       ? 'text-green-700 dark:text-green-300'
-                      : 'text-red-700 dark:text-red-300'
+                      : 'text-yellow-700 dark:text-yellow-300'
                   }
                 >
                   {nutrition_facts.summary_evaluation.status === 'Layak'
                     ? '✓ Makanan Layak Dikonsumsi'
-                    : '⚠ Makanan Tidak Seimbang'}
+                    : '❖ Analisis Makanan'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">

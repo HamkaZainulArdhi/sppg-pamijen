@@ -28,7 +28,7 @@ export interface NutritionSummary {
 }
 
 export interface SummaryEvaluation {
-  status: 'Layak' | 'Tidak Layak';
+  status: 'Layak' | 'Kurang sesuai';
   reason: string;
   recommendation: string | null;
 }

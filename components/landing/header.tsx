@@ -70,6 +70,12 @@ const Header = () => {
     setIsOpen(false);
     const targetId = item.toLowerCase().replace(' ', '-');
 
+    // Menu Rekap
+    if (item === 'Menu Rekap') {
+      router.push('/menu-rekap');
+      return;
+    }
+
     // kalau lagi bukan di halaman utama → redirect ke home + hash
     if (pathname !== '/') {
       if (item === 'Home') {
@@ -97,6 +103,11 @@ const Header = () => {
       Menu: 'menu',
       Fitur: 'fitur',
     };
+
+    // Check if Menu Rekap is active
+    if (item === 'Menu Rekap') {
+      return pathname === '/menu-rekap';
+    }
 
     if (pathname !== '/') {
       return item === 'home';
@@ -150,12 +161,34 @@ const Header = () => {
               </motion.button>
             ))}
 
-            <Link href="/signin">
+            <motion.button
+              onClick={() => handleNavClick('Menu Rekap')}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className={cn(
+                'cursor-pointer transition-colors relative group',
+                isActiveItem('Menu Rekap')
+                  ? 'text-primary'
+                  : 'text-accent-foreground hover:text-primary',
+              )}
+            >
+              Menu Rekap
+              <span
+                className={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all ${
+                  isActiveItem('Menu Rekap')
+                    ? 'w-full'
+                    : 'w-0 group-hover:w-full'
+                }`}
+              ></span>
+            </motion.button>
+
+            {/* <Link href="/signin">
               <Button variant="primary">
                 <LogIn />
                 Masuk SPPG
               </Button>
-            </Link>
+            </Link> */}
           </nav>
 
           {/* Mobile Navigation */}
@@ -188,7 +221,14 @@ const Header = () => {
                       {item}
                     </Button>
                   ))}
-                  <div className="pt-4">
+                  <Button
+                    onClick={() => handleNavClick('Menu Rekap')}
+                    variant="ghost"
+                    className="w-full justify-start hover:text-primary"
+                  >
+                    Menu Rekap
+                  </Button>
+                  {/* <div className="pt-4">
                     <Link href="/signin">
                       <Button
                         className="w-full"
@@ -198,7 +238,7 @@ const Header = () => {
                         Masuk SPPG
                       </Button>
                     </Link>
-                  </div>
+                  </div> */}
                 </nav>
               </DrawerContent>
             </Drawer>

@@ -7,12 +7,13 @@ if (!googleApiKey) {
   throw new Error('Google API key is not defined in environment variables');
 }
 const genAI = new GoogleGenerativeAI(googleApiKey);
-const GEMINI_MODEL = 'gemini-2.5-flash-preview-09-2025';
+const GEMINI_MODEL = 'gemini-2.0-flash-001';
 // list model yg work
 // 1. gemini-2.5-flash-preview-05-20 // ini kadang ra bisa
 // 2. gemini-2.0-flash-001
 // 3. gemini-2.5-flash-preview-09-2025
 //4. gemini-2.5-flash-lite // sering halu
+//5. gemini-2.5-flash
 const texterror =
   'Analisis nutrisi gagal dilakukan. unggah foto lain dan pastikan semua makanan dengan terlihat jelas dan batasan deteksi 50X request perhari.';
 
@@ -150,9 +151,9 @@ Input: ${JSON.stringify(menuItems)}
 Task:
 1. Calculate detailed nutritional information for each food item.
 2. Provide a nutrition summary including: Calories, Protein, Fat, Carbs, Sodium, and Fiber.
-3. Evaluate whether the meal is "Layak" (nutritionally balanced) or "Tidak Layak" (unbalanced, excessive, or deficient).
+3. Evaluate whether the meal is "Layak" (nutritionally balanced) or "Kurang sesuai" (unbalanced, excessive, or deficient).
 4. Provide a short explanation (max 50 words in Bahasa Indonesia) for the evaluation.
-5. If "Tidak Layak", provide practical recommendations (max 50 words in Bahasa Indonesia) to improve the meal.
+5. If "Kurang sesuai", provide practical recommendations (max 50 words in Bahasa Indonesia) to improve the meal.
 
 Output format: Return ONLY a valid JSON object with this exact structure:
 {
@@ -177,15 +178,15 @@ Output format: Return ONLY a valid JSON object with this exact structure:
     }
   ],
   "summary_evaluation": {
-    "status": "Layak" or "Tidak Layak",
+    "status": "Layak" or "Kurang sesuai",
     "reason": "Short explanation in Bahasa Indonesia (max 50 words)",
     "recommendation": "Practical solution in Bahasa Indonesia (max 50 words)"
   }
 }
 
-Evaluation Criteria for Layak/Tidak Layak:
+Evaluation Criteria for Layak/Kurang Sesuai:
 - Layak: Balanced protein (15-20% of calories), healthy fat ratio, adequate fiber, sodium < 2300mg, calories within reasonable range.
-- Tidak Layak: Excessive calories, high sodium, low protein, imbalanced macros, or insufficient fiber.
+- Kurang sesuai: Excessive calories, high sodium, low protein, imbalanced macros, or insufficient fiber.
 
 Important:
 - Use accurate nutritional data based on standard food databases.

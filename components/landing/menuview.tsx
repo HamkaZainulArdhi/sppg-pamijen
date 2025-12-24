@@ -32,8 +32,14 @@ type CategoryItem = {
 export function MenuView() {
   const [scans, setScans] = useState<PublicNutritionScan[]>([]);
   const [loading, setLoading] = useState(true);
-
   const ease = [0.16, 1, 0.3, 1] as const;
+  const today = new Date();
+  const todayStr = today.toISOString().split('T')[0];
+
+  const filtered = (scans || []).filter((item) => {
+    const itemDate = new Date(item.scan_date).toISOString().split('T')[0];
+    return itemDate === todayStr;
+  });
 
   // Define school categories
   const categories: CategoryItem[] = [
@@ -105,10 +111,11 @@ export function MenuView() {
     fetchPublicScans();
   }, []);
 
-  // Efficiently pick the latest scan per category
+  // Efficiently pick latest scans per category (today's data only)
   const latestByCategory = (() => {
     const map = new Map<string, PublicNutritionScan>();
-    for (const scan of scans) {
+    // Use 'filtered' (today's data only) to get latest per category from today
+    for (const scan of filtered) {
       const cat = scan.school_category ?? '';
       if (!cat || map.has(cat)) continue;
       if (categories.some((c) => c.key === cat)) {
@@ -172,7 +179,7 @@ export function MenuView() {
       </motion.div>
 
       {/* Header */}
-      <div className="text-center mb-4 px-6">
+      <div className="text-center mb-4 mt-20 px-6">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -180,10 +187,10 @@ export function MenuView() {
           viewport={{ once: true }}
           className="flex flex-col items-center gap-5 mb-5"
         >
-          <CustomBadge>Menu Kita</CustomBadge>
+          {/* <CustomBadge>Menu Kita</CustomBadge> */}
 
           <CustomTitle>
-            Cek & Lihat
+            Cek
             <span className="text-primary"> Menu Kita </span>
             Hari ini
           </CustomTitle>
