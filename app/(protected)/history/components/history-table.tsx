@@ -3,14 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
-import {
-  ArrowUpDown,
-  Eye,
-  ImageIcon,
-  MoreHorizontal,
-  Search,
-  Trash2,
-} from 'lucide-react';
+import { Eye, ImageIcon, MoreHorizontal, Search, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import type { NutritionScan } from '@/types/types';
 import { useHistoryScans } from '@/hooks/use-history-scan';
@@ -49,16 +42,12 @@ export function HistoryTable({ user }: HistoryTableProps) {
   const {
     scans,
     filteredScans,
-    paginatedScans,
     isLoading,
     error,
     searchQuery,
     setSearchQuery,
-    sortOrder,
-    setSortOrder,
     page,
     setPage,
-    pageSize,
     fetchScans,
     deleteScan,
     exportHistoryToExcel,
@@ -91,6 +80,12 @@ export function HistoryTable({ user }: HistoryTableProps) {
 
     return true;
   });
+
+  // Apply pagination to filtered data (6 items per page)
+  const paginatedFilteredScans = additionalFiltered.slice(
+    (page - 1) * 6,
+    page * 6,
+  );
 
   // Utils
   const formatDate = (dateString: string) =>
@@ -241,48 +236,69 @@ export function HistoryTable({ user }: HistoryTableProps) {
               <CardHeader>
                 <div className="w-full flex flex-col gap-4 py-5">
                   <CardTitle>Riwayat Scan Menu</CardTitle>
-                  <div className="flex flex-col sm:flex-row sm:justify-between gap-4">
-                    <div className="relative flex-1 sm:max-w-sm">
+                  {/* Filter Controls */}
+
+                  <div className="flex flex-col sm:flex-row gap-3 sm:items-end ">
+                    <div className="relative w-full sm:max-w-sm sm:mr-auto">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
                       <Input
                         placeholder="Cari menu ..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="ps-9 w-71 h-8"
+                        className="ps-9 w-full sm:w-71 h-8"
                       />
                     </div>
-                    <div className="flex gap-2 sm:justify-end items-end ">
-                      <Button
-                        variant="outline"
-                        onClick={() =>
-                          setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')
-                        }
-                        className="flex-1 sm:flex-none h-8 "
+                    <div className="flex flex-wrap gap-2 items-center justify-between sm:justify-end">
+                      {/* Status Filter */}
+                      <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="h-8 px-3 border border-input rounded-md text-sm bg-background"
                       >
-                        <ArrowUpDown className="w-4 h-4 mr-2" />
-                        <span className="hidden sm:inline">
-                          {sortOrder === 'desc' ? 'Terbaru' : 'Terlama'}
-                        </span>
-                        <span className="sm:hidden">Sort</span>
-                      </Button>
-                      <Badge
-                        onClick={handleExportAll}
-                        disabled={isExporting || !filteredScans.length}
-                        variant="success"
-                        appearance="outline"
-                        className="cursor-pointer hover:opacity-80 transition flex-1 sm:flex-none h-8"
+                        <option value="">Semua Status</option>
+                        <option value="Layak">✓ Layak</option>
+                        <option value="Tidak Layak">❖ Standar</option>
+                      </select>
+
+                      {/* Category Filter */}
+                      <select
+                        value={categoryFilter}
+                        onChange={(e) => setCategoryFilter(e.target.value)}
+                        className="h-8 px-3 border border-input rounded-md text-sm bg-background"
                       >
-                        <img
-                          src="/media/file-types/excel.svg"
-                          alt="Excel"
-                          className="w-4 h-4"
-                        />
-                        <span className="hidden sm:inline">
-                          {isExporting ? 'Exporting...' : 'Export ke Excel'}
-                        </span>
-                        <span className="sm:hidden">Export</span>
-                      </Badge>
+                        <option value="">Semua Kategori</option>
+                        <option value="TK">TK/PAUD</option>
+                        <option value="SD_1_3">SD Kelas 1–3</option>
+                        <option value="SD_4_5">SD Kelas 4–5</option>
+                        <option value="SMP">SMP/MTS</option>
+                        <option value="SMA">SMA/SMK/MA</option>
+                      </select>
+
+                      {/* Month Filter */}
+                      <input
+                        type="month"
+                        value={monthFilter}
+                        onChange={(e) => setMonthFilter(e.target.value)}
+                        className="h-8 px-3 border border-input rounded-md text-sm bg-background"
+                      />
                     </div>
+                    <Badge
+                      onClick={handleExportAll}
+                      disabled={isExporting || !filteredScans.length}
+                      variant="success"
+                      appearance="outline"
+                      className="cursor-pointer hover:opacity-80 transition flex-1 sm:flex-none h-8"
+                    >
+                      <img
+                        src="/media/file-types/excel.svg"
+                        alt="Excel"
+                        className="w-4 h-6"
+                      />
+                      <span className="hidden sm:inline">
+                        {isExporting ? 'Exporting...' : 'Export ke Excel'}
+                      </span>
+                      <span className="sm:hidden">Export</span>
+                    </Badge>
                   </div>
                 </div>
               </CardHeader>
@@ -290,97 +306,37 @@ export function HistoryTable({ user }: HistoryTableProps) {
               <CardContent>
                 {/* Desktop Table */}
                 <div className="hidden lg:block rounded-md border overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Foto</TableHead>
-                        <TableHead>Tanggal Scan</TableHead>
-                        <TableHead>Menu</TableHead>
-                        <TableHead>Status Nutrisi</TableHead>
-                        <TableHead>Kategori Sekolah</TableHead>
-                        <TableHead>item Menu</TableHead>
-                        <TableHead>Aksi</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {paginatedScans.map((scan) => {
-                        const { itemCount, evaluationStatus, allItems } =
-                          getScanSummary(scan);
-                        return (
-                          <TableRow key={scan.id}>
-                            <TableCell>
-                              <ScanImage src={scan.image_url} />
-                            </TableCell>
-                            <TableCell>{formatDate(scan.scan_date)}</TableCell>
-                            <TableCell>
-                              <div className="max-w-sm whitespace-pre-line break-words font-medium">
-                                {allItems}
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Badge
-                                variant={
-                                  evaluationStatus === 'Layak'
-                                    ? 'success'
-                                    : 'warning'
-                                }
-                                appearance="outline"
-                                size="md"
-                                className="inline-flex items-center gap-1"
-                              >
-                                {evaluationStatus === 'Layak' ? (
-                                  <>
-                                    <span>✓</span>
-                                    <span>Layak</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <span>❖</span>
-                                    <span>Standar</span>
-                                  </>
-                                )}
-                              </Badge>
-                            </TableCell>
-
-                            <TableCell>
-                              <Badge variant="outline" size="md">
-                                {getCategoryLabel(scan.school_category)}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="outline">{itemCount}</Badge>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <ActionButtons scan={scan} />
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </div>
-
-                {/* Mobile Cards */}
-                <div className="lg:hidden space-y-4">
-                  {paginatedScans.map((scan) => {
-                    const { itemCount, evaluationStatus, allItems } =
-                      getScanSummary(scan);
-                    return (
-                      <Card key={scan.id}>
-                        <CardContent className="p-4">
-                          <div className="flex gap-4">
-                            <ScanImage src={scan.image_url} />
-                            <div className="flex-1 min-w-0">
-                              <div className="flex justify-between items-start mb-2">
-                                <span className="text-sm text-muted-foreground">
-                                  {formatDate(scan.scan_date)}
-                                </span>
-                                <ActionButtons scan={scan} />
-                              </div>
-                              <p className="font-medium text-sm mb-3 line-clamp-2">
-                                {allItems}
-                              </p>
-                              <div className="flex gap-2">
+                  {additionalFiltered.length > 0 ? (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Foto</TableHead>
+                          <TableHead>Tanggal Scan</TableHead>
+                          <TableHead>Menu</TableHead>
+                          <TableHead>Status Nutrisi</TableHead>
+                          <TableHead>Kategori Sekolah</TableHead>
+                          <TableHead>item Menu</TableHead>
+                          <TableHead>Aksi</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {paginatedFilteredScans.map((scan) => {
+                          const { itemCount, evaluationStatus, allItems } =
+                            getScanSummary(scan);
+                          return (
+                            <TableRow key={scan.id}>
+                              <TableCell>
+                                <ScanImage src={scan.image_url} />
+                              </TableCell>
+                              <TableCell>
+                                {formatDate(scan.scan_date)}
+                              </TableCell>
+                              <TableCell>
+                                <div className="max-w-sm whitespace-pre-line break-words font-medium">
+                                  {allItems}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-center">
                                 <Badge
                                   variant={
                                     evaluationStatus === 'Layak'
@@ -388,22 +344,108 @@ export function HistoryTable({ user }: HistoryTableProps) {
                                       : 'warning'
                                   }
                                   appearance="outline"
-                                  size="lg"
+                                  size="md"
+                                  className="inline-flex items-center gap-1"
                                 >
-                                  {evaluationStatus === 'Layak'
-                                    ? '✓ Layak'
-                                    : '❖ Standar'}
+                                  {evaluationStatus === 'Layak' ? (
+                                    <>
+                                      <span>✓</span>
+                                      <span>Layak</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <span>❖</span>
+                                      <span>Standar</span>
+                                    </>
+                                  )}
                                 </Badge>
+                              </TableCell>
+
+                              <TableCell>
                                 <Badge variant="outline" size="md">
                                   {getCategoryLabel(scan.school_category)}
                                 </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="outline">{itemCount}</Badge>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <ActionButtons scan={scan} />
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  ) : (
+                    <div className="p-6">
+                      <Nodata
+                        type="no-filter-match"
+                        onResetFilter={() => {
+                          setStatusFilter('');
+                          setCategoryFilter('');
+                          setMonthFilter('');
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Mobile Cards */}
+                <div className="lg:hidden space-y-4">
+                  {paginatedFilteredScans.length > 0 ? (
+                    paginatedFilteredScans.map((scan) => {
+                      const { evaluationStatus, allItems } =
+                        getScanSummary(scan);
+                      return (
+                        <Card key={scan.id}>
+                          <CardContent className="p-4">
+                            <div className="flex gap-4">
+                              <ScanImage src={scan.image_url} />
+                              <div className="flex-1 min-w-0">
+                                <div className="flex justify-between items-start mb-2">
+                                  <span className="text-sm text-muted-foreground">
+                                    {formatDate(scan.scan_date)}
+                                  </span>
+                                  <ActionButtons scan={scan} />
+                                </div>
+                                <p className="font-medium text-sm mb-3 line-clamp-2">
+                                  {allItems}
+                                </p>
+                                <div className="flex gap-2">
+                                  <Badge
+                                    variant={
+                                      evaluationStatus === 'Layak'
+                                        ? 'success'
+                                        : 'warning'
+                                    }
+                                    appearance="outline"
+                                    size="lg"
+                                  >
+                                    {evaluationStatus === 'Layak'
+                                      ? '✓ Layak'
+                                      : '❖ Standar'}
+                                  </Badge>
+                                  <Badge variant="outline" size="md">
+                                    {getCategoryLabel(scan.school_category)}
+                                  </Badge>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
+                          </CardContent>
+                        </Card>
+                      );
+                    })
+                  ) : (
+                    <Nodata
+                      type="no-filter-match"
+                      onResetFilter={() => {
+                        setStatusFilter('');
+                        setCategoryFilter('');
+                        setMonthFilter('');
+                      }}
+                    />
+                  )}
                 </div>
 
                 {filteredScans.length === 0 && searchQuery && (
@@ -425,7 +467,7 @@ export function HistoryTable({ user }: HistoryTableProps) {
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6">
                   <span className="text-sm text-muted-foreground">
                     Halaman {page} dari{' '}
-                    {Math.ceil(filteredScans.length / pageSize)}
+                    {Math.ceil(additionalFiltered.length / 6)}
                   </span>
                   <div className="flex gap-2">
                     <Button
@@ -437,7 +479,7 @@ export function HistoryTable({ user }: HistoryTableProps) {
                     </Button>
                     <Button
                       variant="outline"
-                      disabled={page * pageSize >= filteredScans.length}
+                      disabled={page * 6 >= additionalFiltered.length}
                       onClick={() => setPage(page + 1)}
                     >
                       Berikutnya

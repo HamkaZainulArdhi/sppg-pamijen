@@ -221,8 +221,6 @@ export function RekapMenu({ scans, loading }: RekapMenuProps) {
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const ease = [0.16, 1, 0.3, 1] as const;
-
   // Memoize menu map (recalc only on scans change)
   const menuMap = useMemo(() => buildDailyMenuMap(scans), [scans]);
 
@@ -252,15 +250,6 @@ export function RekapMenu({ scans, loading }: RekapMenuProps) {
     setIsModalOpen(false);
     setSelectedMenu(null);
   }, []);
-
-  const pop = {
-    hidden: { opacity: 0, scale: 0.92 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: { duration: 0.6, ease },
-    },
-  };
 
   return (
     <section id="rekap-menu" className="py-2 mb-7 relative px-6">

@@ -7,18 +7,14 @@ import { Toaster } from '@/components/ui/sonner';
 import '@/css/styles.css';
 import '@/components/keenicons/assets/styles.css';
 import { Metadata } from 'next';
+import { AppMetadata } from '@/config/metadata.config';
 import { AuthProvider } from '@/providers/auth-provider';
 import { QueryProvider } from '@/providers/query-provider';
 import { ThemeProvider } from '@/providers/theme-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const metadata: Metadata = {
-  title: {
-    template: 'GiziKita | Satuan Pelayanan Pemenuhan Gizi',
-    default: 'GiziKita | Satuan Pelayanan Pemenuhan Gizi',
-  },
-};
+export const metadata: Metadata = AppMetadata;
 
 export default async function RootLayout({
   children,

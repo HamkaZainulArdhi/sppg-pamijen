@@ -105,7 +105,7 @@ export default function Hero() {
             alt=""
             width={1344}
             height={768}
-            className="h-auto w-[90%] opacity-10 md:w-[70%] lg:w-[55%]"
+            className="h-auto w-[90%] opacity-10 md:w-[70%] lg:w-[40%]"
           />
         </motion.div>
       </motion.div>
