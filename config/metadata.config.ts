@@ -27,6 +27,9 @@ export const AppMetadata: Metadata = {
     'SPPG Pamijen',
     'SPPG Purwokerto',
     'SPPG Banyumas',
+    'GiziKita',
+    'Aplikasi GiziKita',
+    'Platform GiziKita',
   ],
 
   /** Canonical & robots */
@@ -57,7 +60,7 @@ export const AppMetadata: Metadata = {
       'Platform AI Scanner untuk memantau menu dan kandungan gizi anak sesuai standar program Makan Bergizi Gratis.',
     images: [
       {
-        url: '/media/collab/BGN_lOGO.png',
+        url: '/media/collab/BGN_LOGO.png',
         width: 1100,
         height: 600,
         alt: 'GiziKita – SPPG Pamijen',
